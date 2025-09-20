@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+      'api_seguro' => [
+        'url' => env('API_SEGURO_URL'),
+        'key' => env('API_SEGURO_KEY'),
+    ],
+
 ];
