@@ -4,7 +4,9 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+           "postinstall": "npm run publish:themes",
+    "publish:themes": "cp -r node_modules/@primeuix/themes/ public/themes"
     },
     "devDependencies": {
         "@inertiajs/vue3": "^1.0.0",

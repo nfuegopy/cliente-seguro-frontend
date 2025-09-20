@@ -41,15 +41,13 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        // NOTA: Hemos eliminado la llamada a `Auth::attempt()` de aquí.
+        // Ahora, el `AuthenticatedSessionController` se encargará de llamar a nuestra API
+        // usando el ApiHelper. Si la API falla, el controlador lanzará la excepción.
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
-        }
-
-        RateLimiter::clear($this->throttleKey());
+        // Limpiamos el limitador de intentos solo después de que la autenticación
+        // en el controlador (con la API) sea exitosa.
+        // Moveremos la línea `RateLimiter::clear($this->throttleKey());` al controlador.
     }
 
     /**

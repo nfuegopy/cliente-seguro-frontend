@@ -33,6 +33,9 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+                          'userFromApi' => $request->session()->get('user_from_api'),
+
+
             ],
         ];
     }
