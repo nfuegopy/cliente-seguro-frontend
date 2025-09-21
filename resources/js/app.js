@@ -6,13 +6,15 @@ import { createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy";
 
-// --- INICIA LA NUEVA Y CORRECTA CONFIGURACIÓN DE PRIMEVUE ---
-
 import PrimeVue from "primevue/config";
-import Aura from "@primeuix/themes/aura"; // 1. Importa el PRESET del tema desde el nuevo paquete.
-import "primeicons/primeicons.css"; // 2. Importa los íconos (esto no ha cambiado).
+import Aura from "@primeuix/themes/aura";
+import "primeicons/primeicons.css";
 
-// --- TERMINA LA CONFIGURACIÓN DE PRIMEVUE ---
+// --- ¡ASEGÚRATE DE TENER ESTAS LÍNEAS! ---
+import ConfirmationService from "primevue/confirmationservice";
+import ToastService from "primevue/toastservice";
+import ConfirmDialog from "primevue/confirmdialog";
+import Toast from "primevue/toast";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -28,16 +30,21 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue);
 
-        // --- 3. REGISTRA PRIMEVUE CON EL NUEVO SISTEMA DE TEMA ---
         app.use(PrimeVue, {
             theme: {
-                preset: Aura, // Usa el preset importado.
+                preset: Aura,
                 options: {
-                    darkModeSelector: ".dark-mode", // Opcional: para configurar el modo oscuro en el futuro.
+                    darkModeSelector: ".dark-mode",
                 },
             },
-            ripple: true, // Activa el efecto de onda en los clics.
+            ripple: true,
         });
+
+        // --- ¡Y ASEGÚRATE DE QUE ESTÉN REGISTRADOS AQUÍ! ---
+        app.use(ConfirmationService); // <-- Esta línea es crucial para el diálogo de confirmación.
+        app.use(ToastService);
+        app.component("ConfirmDialog", ConfirmDialog);
+        app.component("Toast", Toast);
 
         app.mount(el);
     },
