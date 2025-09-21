@@ -22,6 +22,8 @@
     },
     "dependencies": {
         "@primeuix/themes": "^1.2.3",
+        "@studio-freight/lenis": "^1.0.42",
+        "gsap": "^3.13.0",
         "primeicons": "^7.0.0",
         "primevue": "^4.3.9",
         "ziggy-js": "^2.6.0"
