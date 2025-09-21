@@ -111,3 +111,150 @@ Sigue estos pasos en orden para configurar tu entorno de desarrollo.
     ```
 
 ¡Listo! 🎉 Abre tu navegador y visita [http://127.0.0.1:8000](http://127.0.0.1:8000) para ver tu aplicación funcionando.
+
+---
+
+## Guía para Crear Nuevos Menús
+
+Esta sección explica cómo crear nuevos menús en el proyecto siguiendo la misma lógica utilizada para los menús de "Roles" y "Grupo Menú".
+
+### Paso 1: Crear el Controlador
+
+1. **Ubicación**: Ve a la carpeta `app/Http/Controllers/Admin/`.
+2. **Crear el Controlador**: Ejecuta el siguiente comando en tu terminal:
+    ```bash
+    php artisan make:controller Admin/NuevoMenuController
+    ```
+3. **Definir Métodos**: Abre el archivo `NuevoMenuController.php` y define los métodos necesarios, como `index`, `create`, `store`, `edit`, `update` y `destroy`.
+
+    ```php
+    <?php
+
+    namespace App\Http\Controllers\Admin;
+
+    use App\Http\Controllers\Controller;
+    use Illuminate\Http\Request;
+
+    class NuevoMenuController extends Controller
+    {
+        public function index()
+        {
+            // Lógica para listar los elementos del menú
+        }
+
+        public function create()
+        {
+            // Lógica para mostrar el formulario de creación
+        }
+
+        public function store(Request $request)
+        {
+            // Lógica para guardar un nuevo elemento
+        }
+
+        public function edit($id)
+        {
+            // Lógica para mostrar el formulario de edición
+        }
+
+        public function update(Request $request, $id)
+        {
+            // Lógica para actualizar un elemento existente
+        }
+
+        public function destroy($id)
+        {
+            // Lógica para eliminar un elemento
+        }
+    }
+    ```
+
+### Paso 2: Definir las Rutas
+
+1. **Ubicación**: Abre el archivo `routes/web.php`.
+2. **Agregar las Rutas**: Define las rutas necesarias para el nuevo menú.
+
+    ```php
+    use App\Http\Controllers\Admin\NuevoMenuController;
+
+    Route::prefix('admin')->group(function () {
+        Route::resource('nuevo-menu', NuevoMenuController::class);
+    });
+    ```
+
+### Paso 3: Crear el Modelo (Opcional)
+
+Si el menú requiere interacción con una tabla en la base de datos:
+
+1. **Crear el Modelo**: Ejecuta el siguiente comando:
+    ```bash
+    php artisan make:model NuevoMenu -m
+    ```
+2. **Definir la Migración**: Configura la migración generada en `database/migrations/` para crear la tabla correspondiente.
+3. **Ejecutar la Migración**:
+    ```bash
+    php artisan migrate
+    ```
+
+### Paso 4: Crear las Vistas en Vue
+
+1. **Ubicación**: Ve a la carpeta `resources/js/Pages/Admin/`.
+2. **Crear Archivos Vue**: Crea una carpeta llamada `NuevoMenu` y dentro de ella los archivos `Index.vue`, `CreateForm.vue` y `EditForm.vue`.
+3. **Ejemplo de `Index.vue`**:
+
+    ```vue
+    <template>
+        <div>
+            <h1>Gestión de Nuevo Menú</h1>
+            <!-- Tabla o lista de elementos -->
+        </div>
+    </template>
+
+    <script>
+    export default {
+        name: "NuevoMenuIndex",
+    };
+    </script>
+    ```
+
+### Paso 5: Conectar el Backend con el Frontend
+
+1. **Configurar el Componente Vue**: Asegúrate de que las rutas definidas en `web.php` sean consumidas desde los componentes Vue utilizando Axios o Fetch.
+2. **Ejemplo de Petición Axios**:
+
+    ```javascript
+    import axios from "axios";
+
+    export default {
+        methods: {
+            fetchData() {
+                axios
+                    .get("/admin/nuevo-menu")
+                    .then((response) => {
+                        console.log(response.data);
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
+            },
+        },
+        mounted() {
+            this.fetchData();
+        },
+    };
+    ```
+
+### Paso 6: Agregar el Menú en la Barra de Navegación
+
+1. **Ubicación**: Abre el archivo `resources/js/Layouts/Partials/SideBar.vue`.
+2. **Agregar el Enlace**: Añade un enlace al nuevo menú.
+    ```vue
+    <template>
+        <nav>
+            <!-- Otros enlaces -->
+            <router-link to="/admin/nuevo-menu">Nuevo Menú</router-link>
+        </nav>
+    </template>
+    ```
+
+¡Listo! Ahora tienes un nuevo menú completamente funcional siguiendo la misma lógica que los menús existentes.
