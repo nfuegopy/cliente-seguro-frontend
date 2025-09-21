@@ -1,4 +1,5 @@
 <script setup>
+import { route } from "ziggy-js";
 import { ref, onMounted, computed } from "vue";
 import { Link } from "@inertiajs/vue3";
 import axios from "axios";
