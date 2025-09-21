@@ -34,7 +34,7 @@ createInertiaApp({
             theme: {
                 preset: Aura,
                 options: {
-                    darkModeSelector: ".dark-mode",
+                    //darkModeSelector: ".dark-mode",
                 },
             },
             ripple: true,
