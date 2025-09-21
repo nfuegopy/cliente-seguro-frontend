@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\GrupoMenuController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Auth\ClientLoginController;
+use App\Http\Controllers\Admin\MenuController;
+
 use App\Http\Controllers\PermisosController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +47,10 @@ Route::prefix('clienteseguro')->group(function () {
         Route::resource('/admin/menu-grupo', GrupoMenuController::class)
             ->only(['index', 'store', 'update', 'destroy'])
             ->names('admin.grupo-menu');
+
+            Route::resource('/admin/menu', MenuController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->names('admin.menu');
     });
 
     require __DIR__.'/auth.php';
