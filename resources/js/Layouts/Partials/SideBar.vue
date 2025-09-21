@@ -87,11 +87,11 @@ onMounted(async () => {
                 >
                     <li v-for="option in group.opciones" :key="option.id">
                         <Link
-                            :href="option.url"
+                            :href="route(option.url)"
                             class="w-full text-left flex items-center p-2 my-1 rounded-md text-text-light hover:bg-blue-accent hover:text-white"
                             :class="{
                                 'bg-blue-accent text-white font-semibold':
-                                    route().current(option.url.substring(1)),
+                                    route().current(option.url),
                             }"
                         >
                             <i :class="option.icono" class="mr-3"></i>
