@@ -17,6 +17,11 @@ $prefix = env('APP_ROUTE_PREFIX', '');
 // El prefijo se aplicará automáticamente solo si está definido en el .env.
 Route::prefix($prefix)->group(function () {
 
+
+    Route::get('/test-hola', function () {
+    return '¡Hola Mundo desde Laravel! La ruta funciona.';
+});
+
     Route::get('/', function () {
         return Inertia::render('Welcome', [
             'canLogin' => Route::has('login'),
