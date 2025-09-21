@@ -28,7 +28,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         const app = createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(ZiggyVue);
+            .use(ZiggyVue, window.Ziggy);
 
         app.use(PrimeVue, {
             theme: {
