@@ -1,4 +1,5 @@
 <script setup>
+import { route } from "ziggy-js";
 import { useForm } from "@inertiajs/vue3";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
