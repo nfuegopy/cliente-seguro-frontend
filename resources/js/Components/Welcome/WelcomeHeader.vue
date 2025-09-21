@@ -1,24 +1,38 @@
 <script setup>
 import { route } from "ziggy-js";
 import { Link } from "@inertiajs/vue3";
+import Button from "primevue/button";
+import { usePage } from "@inertiajs/vue3";
 
-defineProps({ canLogin: Boolean, canRegister: Boolean });
+const page = usePage();
 </script>
 
 <template>
-    <div v-if="canLogin" class="absolute top-0 right-0 p-6 z-30">
+    <div v-if="page.props.auth.user">
         <Link
-            v-if="$page.props.auth.user"
             :href="route('dashboard')"
-            class="font-semibold text-white hover:text-gray-300"
-            >Dashboard</Link
+            class="font-semibold text-white hover:text-gray-300 transition-colors"
         >
-        <template v-else>
-            <Link
-                :href="route('login')"
-                class="font-semibold text-white hover:text-gray-300"
-                >Iniciar Sesión</Link
-            >
-        </template>
+            Dashboard
+        </Link>
+    </div>
+    <div v-else>
+        <Link :href="route('cliente.login')">
+            <Button
+                label="Acceso Clientes"
+                type="button"
+                size="large"
+                class="!font-bold !bg-teal-500 hover:!bg-teal-600 !border-teal-500 transition-transform hover:scale-105"
+            />
+        </Link>
+        <Link :href="route('login')">
+            <Button
+                label="Acceso Interno"
+                type="button"
+                outlined
+                size="large"
+                class="!font-bold !border-white !text-white hover:!bg-white/10 transition-transform hover:scale-105"
+            />
+        </Link>
     </div>
 </template>
