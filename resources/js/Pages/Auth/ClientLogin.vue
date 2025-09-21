@@ -1,4 +1,5 @@
 <script setup>
+import { route } from "ziggy-js";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";

@@ -1,4 +1,5 @@
 <script setup>
+import { route } from "ziggy-js";
 import { ref } from "vue";
 import { Head, router } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
