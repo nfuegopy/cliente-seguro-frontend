@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\ClientLoginController;
 use App\Http\Controllers\PermisosController;
 use App\Http\Controllers\Admin\RolesController;
+use App\Http\Controllers\Admin\GrupoMenuController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,12 +34,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/menu', [PermisosController::class, 'obtenerMenuParaRol'])->name('api.menu');
 
 
-// --- Rutas para Roles ---
-Route::get('/admin/roles', [RolesController::class, 'index'])->name('admin.roles.index');
-Route::post('/admin/roles', [RolesController::class, 'store'])->name('admin.roles.store');
-Route::patch('/admin/roles/{id}', [RolesController::class, 'update'])->name('admin.roles.update'); // <-- AÑADE ESTA
-Route::delete('/admin/roles/{id}', [RolesController::class, 'destroy'])->name('admin.roles.destroy'); // <-- Y ESTA
-
+    // --- Rutas para Roles ---
+    Route::resource('/admin/roles', RolesController::class)->only(['index', 'store', 'update', 'destroy'])->names('admin.roles');
+    Route::resource('/admin/menu-grupo', GrupoMenuController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+       ->names('admin.grupo-menu');
 
 });
 

@@ -3,24 +3,24 @@ import { ref, onMounted, computed } from "vue";
 import { Link } from "@inertiajs/vue3";
 import axios from "axios";
 
-// --- NUEVA LÓGICA DE INTERACCIÓN ---
+// --- LÓGICA DE INTERACCIÓN DEL SIDEBAR ---
 
-// El componente recibe del layout si debe estar fijado o no.
+// El componente recibe del layout si debe estar fijado (pinned) o no.
 const props = defineProps({
     isPinned: Boolean,
 });
 
-// El componente le avisa al layout cuando el usuario cambia el estado de fijado.
+// El componente le "avisará" al layout cuando el usuario haga clic en el botón de pin.
 const emit = defineEmits(["toggle-pin"]);
 
 // Estado interno para saber si el mouse está encima del sidebar.
 const isHovering = ref(false);
 
-// Propiedad computada: el sidebar se considera "expandido" si está fijado O si el mouse está encima.
+// Una "propiedad computada" es una variable que se recalcula automáticamente.
+// El sidebar se considera "expandido" si está fijado (isPinned) O si el mouse está encima (isHovering).
 const isExpanded = computed(() => props.isPinned || isHovering.value);
 
-// --- LÓGICA EXISTENTE PARA CARGAR EL MENÚ ---
-
+// --- LÓGICA PARA CARGAR EL MENÚ (sin cambios) ---
 const menuGroups = ref([]);
 const openMenuGroupId = ref(null);
 
@@ -49,12 +49,13 @@ onMounted(async () => {
         :class="{ 'w-64': isExpanded, 'w-20': !isExpanded }"
     >
         <div
-            class="p-4 flex items-center justify-between border-b border-gray-700 h-16"
+            class="p-4 flex items-center justify-between border-b border-gray-700 h-16 flex-shrink-0"
         >
             <span v-show="isExpanded" class="font-bold">Menú Principal</span>
+
             <button
                 @click="emit('toggle-pin')"
-                class="p-2 rounded-full hover:bg-dark-primary"
+                class="p-2 rounded-full hover:bg-dark-primary transition-colors"
             >
                 <i :class="isPinned ? 'pi pi-lock' : 'pi pi-lock-open'"></i>
             </button>
@@ -64,7 +65,7 @@ onMounted(async () => {
             <div v-for="group in menuGroups" :key="group.id" class="mb-2">
                 <button
                     @click="toggleMenuGroup(group.id)"
-                    class="w-full flex items-center justify-between p-3 rounded-md hover:bg-dark-primary"
+                    class="w-full flex items-center justify-between p-3 rounded-md hover:bg-dark-primary transition-colors"
                 >
                     <div class="flex items-center">
                         <i :class="group.icono" class="text-xl"></i>

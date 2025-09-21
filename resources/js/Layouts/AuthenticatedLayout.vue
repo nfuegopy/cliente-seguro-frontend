@@ -2,11 +2,15 @@
 import { ref } from "vue";
 import TopBar from "@/Layouts/Partials/TopBar.vue";
 import SideBar from "@/Layouts/Partials/SideBar.vue";
-import ConfirmDialog from "primevue/confirmdialog"; // <-- 1. Importa el componente
-import Toast from "primevue/toast"; // <-- Y el de notificaciones
 
+// --- ¡AÑADE ESTAS IMPORTACIONES! ---
+import ConfirmDialog from "primevue/confirmdialog";
+import Toast from "primevue/toast";
+
+// Estado que controla si el sidebar está fijado. Por defecto, sí.
 const isSidebarPinned = ref(true);
 
+// Función que cambia el estado de fijado. Se la pasamos al SideBar.
 const toggleSidebarPin = () => {
     isSidebarPinned.value = !isSidebarPinned.value;
 };
@@ -14,6 +18,9 @@ const toggleSidebarPin = () => {
 
 <template>
     <div class="min-h-screen">
+        <ConfirmDialog />
+        <Toast />
+
         <div class="flex h-screen">
             <SideBar
                 :is-pinned="isSidebarPinned"
@@ -27,8 +34,5 @@ const toggleSidebarPin = () => {
                 </main>
             </div>
         </div>
-
-        <Toast />
-        <ConfirmDialog />
     </div>
 </template>

@@ -1,30 +1,17 @@
 <script setup>
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
-import { useTheme } from "@/Composables/useTheme"; // <-- 1. Importamos el nuevo composable
+import { useTheme } from "@/Composables/useTheme";
 import Button from "primevue/button";
 
-// 2. Obtenemos el modo actual y la función para cambiarlo
 const { mode, toggleMode } = useTheme();
-
-const emit = defineEmits(["toggle-sidebar"]);
 </script>
 
 <template>
     <header
-        class="bg-dark-primary text-text-primary shadow-md p-4 flex justify-between items-center z-10 flex-shrink-0 h-16"
+        class="bg-dark-primary text-text-primary shadow-md p-4 flex justify-end items-center z-10 flex-shrink-0 h-16"
     >
-        <div class="flex items-center">
-            <button
-                @click="emit('toggle-sidebar')"
-                class="p-2 rounded-md hover:bg-dark-secondary focus:outline-none md:hidden"
-            >
-                <i class="pi pi-bars text-xl"></i>
-            </button>
-        </div>
-
         <div class="flex items-center gap-4">
-            <!-- 3. Botón para Cambiar Tema (Claro/Oscuro) -->
             <Button
                 @click="toggleMode"
                 :icon="mode === 'light' ? 'pi pi-moon' : 'pi pi-sun'"
@@ -34,7 +21,6 @@ const emit = defineEmits(["toggle-sidebar"]);
                 class="!text-text-light hover:!bg-dark-secondary"
             />
 
-            <!-- Menú de Usuario -->
             <div class="relative">
                 <Dropdown align="right" width="56">
                     <template #trigger>
