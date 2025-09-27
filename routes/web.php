@@ -53,9 +53,9 @@ Route::prefix('clienteseguro')->group(function () {
         ->names('admin.menu');
 
 
-    Route::resource('admin/menu', MenuController::class)
-        ->only(['index', 'store', 'update', 'destroy'])
-        ->names('admin.menu');
+    // Route::resource('admin/menu', MenuController::class)
+    //     ->only(['index', 'store', 'update', 'destroy'])
+    //     ->names('admin.menu');
     });
 
 
