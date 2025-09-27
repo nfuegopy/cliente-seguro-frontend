@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, router } from "@inertiajs/vue3";
+import { route } from "ziggy-js"; // <-- ¡AÑADE ESTA LÍNEA!
 import { ref, watch, computed } from "vue";
 
 // Componentes de PrimeVue
@@ -17,13 +18,12 @@ const props = defineProps({
     menus: Array,
     grupoMenus: Array,
     flash: Object,
-    errors: Object, // <-- Importante para recibir errores de validación
+    errors: Object,
 });
 
 const confirm = useConfirm();
 const toast = useToast();
 
-// --- LOG DETALLADO DE ERRORES DE LARAVEL ---
 watch(
     () => props.errors,
     (newErrors) => {
@@ -37,14 +37,12 @@ watch(
     { immediate: true, deep: true }
 );
 
-// --- Lógica de la Tabla (DataTable) ---
 const globalFilter = ref(null);
 const filters = ref({
     global: { value: globalFilter, matchMode: "contains" },
 });
 const menuItems = computed(() => props.menus);
 
-// --- Lógica de los Modales ---
 const showCreateDialog = ref(false);
 const showEditDialog = ref(false);
 const editingMenu = ref(null);
@@ -75,7 +73,6 @@ const hideEditDialog = () => {
     editingMenu.value = null;
 };
 
-// --- CRUD Operations ---
 const handleDelete = (menu) => {
     confirm.require({
         message: `¿Está seguro de que desea eliminar el menú: ${menu.nombre}?`,
@@ -86,6 +83,7 @@ const handleDelete = (menu) => {
         acceptLabel: "Sí, Eliminar",
         rejectLabel: "Cancelar",
         accept: () => {
+            // Esta línea ahora funcionará correctamente
             router.delete(route("admin.menu.destroy", menu.id), {
                 onSuccess: () => {
                     toast.add({

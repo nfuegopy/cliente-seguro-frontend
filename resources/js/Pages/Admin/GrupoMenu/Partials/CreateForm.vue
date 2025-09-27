@@ -4,8 +4,11 @@ import { useForm } from "@inertiajs/vue3";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
+import Dropdown from "primevue/dropdown"; // <-- 1. Importar Dropdown
+import { usePrimeIcons } from "@/Composables/usePrimeIcons"; // <-- 2. Importar íconos
 
 const emit = defineEmits(["close"]);
+const { icons } = usePrimeIcons(); // <-- 3. Obtener la lista de íconos
 
 const form = useForm({
     nombre: "",
@@ -45,9 +48,31 @@ const submit = () => {
             </div>
             <div class="flex flex-col gap-2">
                 <label for="icono" class="font-semibold text-gray-700"
-                    >Icono (Ej: pi pi-cog)</label
+                    >Icono</label
                 >
-                <InputText id="icono" v-model="form.icono" />
+                <Dropdown
+                    id="icono"
+                    v-model="form.icono"
+                    :options="icons"
+                    filter
+                    placeholder="Seleccione un ícono"
+                >
+                    <template #value="slotProps">
+                        <div v-if="slotProps.value" class="flex items-center">
+                            <i :class="slotProps.value" class="mr-2"></i>
+                            <div>{{ slotProps.value }}</div>
+                        </div>
+                        <span v-else>
+                            {{ slotProps.placeholder }}
+                        </span>
+                    </template>
+                    <template #option="slotProps">
+                        <div class="flex items-center">
+                            <i :class="slotProps.option" class="mr-2"></i>
+                            <div>{{ slotProps.option }}</div>
+                        </div>
+                    </template>
+                </Dropdown>
             </div>
         </div>
         <div class="flex justify-end gap-2 p-4 border-t border-gray-200 mt-4">
