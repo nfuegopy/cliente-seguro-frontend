@@ -4,7 +4,11 @@ use App\Http\Controllers\Admin\GrupoMenuController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Auth\ClientLoginController;
 use App\Http\Controllers\Admin\MenuController;
-
+use App\Http\Controllers\Admin\MenuRolesController;
+use App\Http\Controllers\Admin\UsuarioController;
+use App\Http\Controllers\Admin\PersonaDocumentoController;
+// 1. CORRECCIÓN: Importar el controlador desde su nueva ubicación en 'Parametros'
+use App\Http\Controllers\Parametros\TipoDocumentoController;
 use App\Http\Controllers\PermisosController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -14,12 +18,8 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Aquí es donde puedes registrar las rutas web para tu aplicación.
-|
 */
 
-// --- NUEVO: Se envuelven todas las rutas en este grupo de prefijo ---
 Route::prefix('clienteseguro')->group(function () {
 
     Route::get('/', function () {
@@ -34,32 +34,31 @@ Route::prefix('clienteseguro')->group(function () {
     Route::post('/acceso-clientes', [ClientLoginController::class, 'store']);
 
     // --- Rutas de Panel de Administración ---
-    // Este grupo de rutas estará protegido por el middleware 'auth'.
-    // Solo los usuarios que hayan iniciado sesión podrán acceder.
     Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/admin', function () {
             return Inertia::render('Admin/Dashboard');
         })->name('admin.dashboard');
+
         Route::get('/api/menu', [PermisosController::class, 'obtenerMenuParaRol'])->name('api.menu');
 
-        // --- Rutas para Roles ---
-        Route::resource('/admin/roles', RolesController::class)->only(['index', 'store', 'update', 'destroy'])->names('admin.roles');
-        Route::resource('/admin/menu-grupo', GrupoMenuController::class)
-            ->only(['index', 'store', 'update', 'destroy'])
-            ->names('admin.grupo-menu');
+        // 2. CORRECCIÓN: Creamos un grupo principal para todo el admin
+        // Este grupo añade el prefijo de URL /admin y el prefijo de nombre "admin."
+        Route::prefix('admin')->name('admin.')->group(function () {
+            Route::resource('roles', RolesController::class)->only(['index', 'store', 'update', 'destroy'])->names('roles');
+            Route::resource('menu-grupo', GrupoMenuController::class)->only(['index', 'store', 'update', 'destroy'])->names('grupo-menu');
+            Route::resource('menu', MenuController::class)->only(['index', 'store', 'update', 'destroy'])->names('menu');
+            Route::resource('menuroles', MenuRolesController::class)->only(['index', 'store', 'update', 'destroy'])->names('menuroles');
+            Route::resource('usuario', UsuarioController::class)->only(['index', 'store', 'update', 'destroy'])->names('usuario');
+            Route::resource('personadocumento', PersonaDocumentoController::class)->only(['index', 'store', 'update', 'destroy'])->names('personadocumento');
 
-            Route::resource('/admin/menu', MenuController::class)
-        ->only(['index', 'store', 'update', 'destroy'])
-        ->names('admin.menu');
-
-
-    // Route::resource('admin/menu', MenuController::class)
-    //     ->only(['index', 'store', 'update', 'destroy'])
-    //     ->names('admin.menu');
+            // 3. CORRECCIÓN: El grupo de parámetros AHORA ESTÁ DENTRO del grupo admin
+            Route::prefix('parametros')->name('parametros.')->group(function () {
+                Route::resource('tipodocumento', TipoDocumentoController::class)
+                    ->only(['index', 'store', 'update', 'destroy'])
+                    ->names('tipodocumento');
+            });
+        });
     });
 
-
-
     require __DIR__.'/auth.php';
-
-}); // --- FIN DEL NUEVO GRUPO DE PREFIJO ---
+});
