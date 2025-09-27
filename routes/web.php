@@ -51,7 +51,14 @@ Route::prefix('clienteseguro')->group(function () {
             Route::resource('/admin/menu', MenuController::class)
         ->only(['index', 'store', 'update', 'destroy'])
         ->names('admin.menu');
+
+
+    Route::resource('admin/menu', MenuController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->names('admin.menu');
     });
+
+
 
     require __DIR__.'/auth.php';
 
