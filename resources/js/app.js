@@ -15,6 +15,7 @@ import ConfirmationService from "primevue/confirmationservice";
 import ToastService from "primevue/toastservice";
 import ConfirmDialog from "primevue/confirmdialog";
 import Toast from "primevue/toast";
+import Tooltip from "primevue/tooltip";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -45,7 +46,7 @@ createInertiaApp({
         app.use(ToastService);
         app.component("ConfirmDialog", ConfirmDialog);
         app.component("Toast", Toast);
-
+        app.directive("tooltip", Tooltip);
         app.mount(el);
     },
     progress: {
