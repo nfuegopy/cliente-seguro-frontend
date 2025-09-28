@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\PersonaDocumentoController;
 use App\Http\Controllers\Parametros\PaisController;
 use App\Http\Controllers\Parametros\DepartamentoController;
-// 1. CORRECCIÓN: Importar el controlador desde su nueva ubicación en 'Parametros'
+use App\Http\Controllers\Parametros\CiudadController;
 use App\Http\Controllers\Parametros\TipoDocumentoController;
 use App\Http\Controllers\PermisosController;
 use Illuminate\Foundation\Application;
@@ -66,6 +66,10 @@ Route::prefix('clienteseguro')->group(function () {
                      Route::resource('departamento', DepartamentoController::class)
                     ->only(['index', 'store', 'update', 'destroy'])
                     ->names('departamento');
+
+                      Route::resource('ciudad', CiudadController::class)
+                    ->only(['index', 'store', 'update', 'destroy'])
+                    ->names('ciudad');
 
             });
         });
