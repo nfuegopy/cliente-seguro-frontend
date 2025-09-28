@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuRolesController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\PersonaDocumentoController;
+use App\Http\Controllers\Parametros\PaisController;
+use App\Http\Controllers\Parametros\DepartamentoController;
 // 1. CORRECCIÓN: Importar el controlador desde su nueva ubicación en 'Parametros'
 use App\Http\Controllers\Parametros\TipoDocumentoController;
 use App\Http\Controllers\PermisosController;
@@ -56,6 +58,15 @@ Route::prefix('clienteseguro')->group(function () {
                 Route::resource('tipodocumento', TipoDocumentoController::class)
                     ->only(['index', 'store', 'update', 'destroy'])
                     ->names('tipodocumento');
+
+                     Route::resource('pais', PaisController::class)
+                    ->only(['index', 'store', 'update', 'destroy'])
+                    ->names('pais');
+
+                     Route::resource('departamento', DepartamentoController::class)
+                    ->only(['index', 'store', 'update', 'destroy'])
+                    ->names('departamento');
+
             });
         });
     });
