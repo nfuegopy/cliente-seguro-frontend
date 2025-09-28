@@ -11,6 +11,7 @@ use App\Http\Controllers\Parametros\PaisController;
 use App\Http\Controllers\Parametros\DepartamentoController;
 use App\Http\Controllers\Parametros\CiudadController;
 use App\Http\Controllers\Parametros\TipoDocumentoController;
+use App\Http\Controllers\Negocio\Parametros\TipoSeguroController;
 use App\Http\Controllers\PermisosController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -43,7 +44,6 @@ Route::prefix('clienteseguro')->group(function () {
 
         Route::get('/api/menu', [PermisosController::class, 'obtenerMenuParaRol'])->name('api.menu');
 
-        // 2. CORRECCIÓN: Creamos un grupo principal para todo el admin
         // Este grupo añade el prefijo de URL /admin y el prefijo de nombre "admin."
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::resource('roles', RolesController::class)->only(['index', 'store', 'update', 'destroy'])->names('roles');
@@ -53,27 +53,33 @@ Route::prefix('clienteseguro')->group(function () {
             Route::resource('usuario', UsuarioController::class)->only(['index', 'store', 'update', 'destroy'])->names('usuario');
             Route::resource('personadocumento', PersonaDocumentoController::class)->only(['index', 'store', 'update', 'destroy'])->names('personadocumento');
 
-            // 3. CORRECCIÓN: El grupo de parámetros AHORA ESTÁ DENTRO del grupo admin
+            // Grupo de Parámetros del Sistema
             Route::prefix('parametros')->name('parametros.')->group(function () {
                 Route::resource('tipodocumento', TipoDocumentoController::class)
                     ->only(['index', 'store', 'update', 'destroy'])
                     ->names('tipodocumento');
-
-                     Route::resource('pais', PaisController::class)
+                Route::resource('pais', PaisController::class)
                     ->only(['index', 'store', 'update', 'destroy'])
                     ->names('pais');
-
-                     Route::resource('departamento', DepartamentoController::class)
+                Route::resource('departamento', DepartamentoController::class)
                     ->only(['index', 'store', 'update', 'destroy'])
                     ->names('departamento');
-
-                      Route::resource('ciudad', CiudadController::class)
+                Route::resource('ciudad', CiudadController::class)
                     ->only(['index', 'store', 'update', 'destroy'])
                     ->names('ciudad');
+            });
 
+            // Grupo para Lógica de Negocio
+            Route::prefix('negocio')->name('negocio.')->group(function () {
+                Route::prefix('parametros')->name('parametros.')->group(function() {
+                    Route::resource('tiposeguro', TipoSeguroController::class)
+                        ->only(['index', 'store', 'update', 'destroy'])
+                        ->names('tiposeguro');
+                });
             });
         });
-    });
+
+    }); // <-- ESTA ES LA LLAVE QUE FALTABA PARA CERRAR EL GRUPO MIDDLEWARE
 
     require __DIR__.'/auth.php';
 });
