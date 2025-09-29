@@ -12,6 +12,10 @@ use App\Http\Controllers\Parametros\DepartamentoController;
 use App\Http\Controllers\Parametros\CiudadController;
 use App\Http\Controllers\Parametros\TipoDocumentoController;
 use App\Http\Controllers\Negocio\Parametros\TipoSeguroController;
+use App\Http\Controllers\Negocio\Parametros\VehiculoMarcaController;
+use App\Http\Controllers\Negocio\Parametros\VehiculoModeloController;
+use App\Http\Controllers\Negocio\Referenciales\AseguradoraController;
+use App\Http\Controllers\Negocio\ProductoSeguroController;
 use App\Http\Controllers\PermisosController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -75,8 +79,27 @@ Route::prefix('clienteseguro')->group(function () {
                     Route::resource('tiposeguro', TipoSeguroController::class)
                         ->only(['index', 'store', 'update', 'destroy'])
                         ->names('tiposeguro');
+                      Route::resource('vehiculomarca', VehiculoMarcaController::class)
+                        ->only(['index', 'store', 'update', 'destroy'])
+                        ->names('vehiculomarca');
+                     Route::resource('vehiculomodelo', VehiculoModeloController::class)
+                        ->only(['index', 'store', 'update', 'destroy'])
+                        ->names('vehiculomodelo');
+                 });
+
+                    Route::prefix('referenciales')->name('referenciales.')->group(function() {
+                        Route::resource('aseguradoras', AseguradoraController::class)
+                            ->only(['index', 'store', 'update', 'destroy'])
+                            ->names('aseguradoras');
+                    });
+
+                    Route::resource('productosseguro', ProductoSeguroController::class)
+                    ->only(['index', 'store', 'update', 'destroy'])
+                    ->names('productosseguro');
+
                 });
-            });
+
+
         });
 
     }); // <-- ESTA ES LA LLAVE QUE FALTABA PARA CERRAR EL GRUPO MIDDLEWARE
