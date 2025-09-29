@@ -26,6 +26,7 @@
         "gsap": "^3.13.0",
         "primeicons": "^7.0.0",
         "primevue": "^4.3.9",
+        "quill": "^2.0.3",
         "ziggy-js": "^2.6.0"
     }
 }

@@ -16,6 +16,8 @@ use App\Http\Controllers\Negocio\Parametros\VehiculoMarcaController;
 use App\Http\Controllers\Negocio\Parametros\VehiculoModeloController;
 use App\Http\Controllers\Negocio\Referenciales\AseguradoraController;
 use App\Http\Controllers\Negocio\ProductoSeguroController;
+use App\Http\Controllers\Negocio\BasesCondicionesController;
+use App\Http\Controllers\Negocio\NivelCoberturaController;
 use App\Http\Controllers\PermisosController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -96,6 +98,14 @@ Route::prefix('clienteseguro')->group(function () {
                     Route::resource('productosseguro', ProductoSeguroController::class)
                     ->only(['index', 'store', 'update', 'destroy'])
                     ->names('productosseguro');
+
+                     Route::resource('basescondiciones', BasesCondicionesController::class)
+                    ->only(['index', 'store', 'update', 'destroy'])
+                    ->names('basescondiciones');
+
+                       Route::resource('nivelescobertura', NivelCoberturaController::class)
+                        ->only(['index', 'store', 'update', 'destroy'])
+                        ->names('nivelescobertura');
 
                 });
 
