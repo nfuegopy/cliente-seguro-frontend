@@ -1,34 +1,28 @@
 <script setup>
-import { Head } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
+import { route } from "ziggy-js";
 import WelcomeLayout from "@/Components/Welcome/WelcomeLayout.vue";
 import HeroSection from "@/Components/Welcome/HeroSection.vue";
-import ServicesSection from "@/Components/Welcome/ServicesSection.vue";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import Button from "primevue/button";
-import { Link } from "@inertiajs/vue3";
-
 import { onMounted } from "vue";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
-import Lenis from "@studio-freight/lenis";
 
 gsap.registerPlugin(ScrollTrigger);
 
-defineProps({ canLogin: Boolean, canRegister: Boolean });
+const props = defineProps({
+    canLogin: Boolean,
+    canRegister: Boolean,
+    secciones: Array,
+});
+
+// Función para determinar si una URL es externa (empieza con http)
+const isExternal = (url) => {
+    return url && url.startsWith("http");
+};
 
 onMounted(() => {
-    // Inicializar Lenis para smooth scrolling
-    const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
-    function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    // Animación de entrada para el texto del héroe
     gsap.from(".hero-content-text", {
         opacity: 0,
         y: 50,
@@ -36,8 +30,6 @@ onMounted(() => {
         delay: 0.5,
         ease: "power3.out",
     });
-
-    // Animación de las tarjetas de servicios
     gsap.from(".service-section", {
         y: 50,
         opacity: 0,
@@ -86,6 +78,79 @@ onMounted(() => {
         </div>
 
         <HeroSection class="flex-1" />
-        <ServicesSection class="flex-1" />
+
+        <section
+            class="min-h-screen w-full bg-gray-800 text-white py-20 services-section-container"
+        >
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center mb-16 text-teal-400">
+                    Nuestros Servicios
+                </h2>
+
+                <div
+                    v-for="(seccion, index) in secciones"
+                    :key="seccion.id"
+                    class="service-section flex flex-col items-center gap-12 mb-20 md:mb-32"
+                    :class="{
+                        'md:flex-row-reverse': index % 2 !== 0,
+                        'md:flex-row': index % 2 === 0,
+                    }"
+                >
+                    <img
+                        :src="seccion.imagen_url"
+                        :alt="seccion.titulo"
+                        class="w-full md:w-1/2 rounded-xl shadow-2xl transform transition-transform hover:scale-105 duration-300"
+                    />
+                    <div
+                        class="w-full md:w-1/2 text-center"
+                        :class="{
+                            'md:text-right': index % 2 !== 0,
+                            'md:text-left': index % 2 === 0,
+                        }"
+                    >
+                        <h3 class="text-4xl font-bold mb-4">
+                            {{ seccion.titulo }}
+                        </h3>
+                        <p class="text-lg text-gray-300 mb-6 leading-relaxed">
+                            {{ seccion.descripcion }}
+                        </p>
+
+                        <a
+                            v-if="isExternal(seccion.enlace_url)"
+                            :href="seccion.enlace_url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Button
+                                :label="seccion.texto_boton"
+                                size="large"
+                                class="!bg-teal-500 hover:!bg-teal-600 !border-teal-500 !font-semibold"
+                            />
+                        </a>
+                        <Link
+                            v-else-if="seccion.enlace_url"
+                            :href="
+                                route('public.page.show', {
+                                    slug: seccion.enlace_url,
+                                })
+                            "
+                        >
+                            <Button
+                                :label="seccion.texto_boton"
+                                size="large"
+                                class="!bg-teal-500 hover:!bg-teal-600 !border-teal-500 !font-semibold"
+                            />
+                        </Link>
+                    </div>
+                </div>
+
+                <div
+                    v-if="!secciones || secciones.length === 0"
+                    class="text-center text-gray-400"
+                >
+                    <p>No hay servicios para mostrar en este momento.</p>
+                </div>
+            </div>
+        </section>
     </WelcomeLayout>
 </template>
