@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Http\Request;
 
 /**
  * Clase Helper para centralizar todas las llamadas a la API de Seguros (NestJS).
@@ -195,5 +196,48 @@ class ApiHelper
     public static function createAsUser(string $endpoint, array $data): Response
     {
         return self::clientWithToken()->post($endpoint, $data);
+    }
+
+
+    /**
+     * Envía una petición POST con archivos (multipart/form-data).
+     *
+     * @param string $endpoint El endpoint de la API.
+     * @param Request $request La petición original de Laravel que contiene los datos y el archivo.
+     * @param string $fileKey El nombre del campo del archivo (ej: 'imagen').
+     * @return \Illuminate\Http\Client\Response
+     */
+    public static function postWithFile(string $endpoint, Request $request, string $fileKey): Response
+    {
+        $client = self::clientWithApiKey()->asMultipart();
+
+        // Adjuntamos el archivo si existe en la petición.
+        if ($request->hasFile($fileKey)) {
+            $client->attach(
+                $fileKey,
+                file_get_contents($request->file($fileKey)),
+                $request->file($fileKey)->getClientOriginalName()
+            );
+        }
+
+        // Adjuntamos el resto de los datos del formulario.
+        foreach ($request->except($fileKey) as $key => $value) {
+             if ($value !== null) {
+                $client->attach($key, $value);
+            }
+        }
+
+        // Para actualizar, Laravel envía un campo _method='PATCH' que debemos manejar.
+        if ($request->input('_method') === 'PATCH') {
+            return $client->post("{$endpoint}");
+        }
+
+        return $client->post($endpoint);
+    }
+
+    public static function getPublicAll(string $endpoint, array $query = []): Response
+    {
+        // Usamos el cliente base sin la API Key
+        return self::client()->get($endpoint, $query);
     }
 }

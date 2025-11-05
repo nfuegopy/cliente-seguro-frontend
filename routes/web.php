@@ -19,10 +19,12 @@ use App\Http\Controllers\Negocio\ProductoSeguroController;
 use App\Http\Controllers\Negocio\BasesCondicionesController;
 use App\Http\Controllers\Negocio\NivelCoberturaController;
 use App\Http\Controllers\PermisosController;
+use App\Http\Controllers\Web\SeccionesWebController;
+use App\Http\Controllers\PublicPageController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
+use App\Http\Helpers\ApiHelper;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -31,13 +33,19 @@ use Inertia\Inertia;
 
 Route::prefix('clienteseguro')->group(function () {
 
-    Route::get('/', function () {
-        return Inertia::render('Welcome', [
-            'canLogin' => Route::has('login'),
-            'laravelVersion' => Application::VERSION,
-            'phpVersion' => PHP_VERSION,
-        ]);
-    })->name('welcome');
+  Route::get('/', function () {
+    // Llamamos al endpoint público de la API para obtener solo las secciones activas
+    $response = ApiHelper::getPublicAll('/secciones-web/activos');
+    $seccionesActivas = $response->successful() ? $response->json() : [];
+
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'secciones' => $seccionesActivas,
+    ]);
+})->name('welcome');
+
+    Route::get('/seguro/{slug}', [PublicPageController::class, 'show'])->name('public.page.show');
 
     Route::get('/acceso-clientes', [ClientLoginController::class, 'create'])->name('cliente.login');
     Route::post('/acceso-clientes', [ClientLoginController::class, 'store']);
@@ -59,6 +67,14 @@ Route::prefix('clienteseguro')->group(function () {
             Route::resource('usuario', UsuarioController::class)->only(['index', 'store', 'update', 'destroy'])->names('usuario');
             Route::resource('personadocumento', PersonaDocumentoController::class)->only(['index', 'store', 'update', 'destroy'])->names('personadocumento');
 
+
+
+            //Grupo para Gestion de secciones web
+             Route::prefix('web')->name('web.')->group(function () {
+            Route::resource('secciones-web', SeccionesWebController::class)
+                ->only(['index', 'store', 'update', 'destroy'])
+                ->names('secciones-web');
+        });
             // Grupo de Parámetros del Sistema
             Route::prefix('parametros')->name('parametros.')->group(function () {
                 Route::resource('tipodocumento', TipoDocumentoController::class)
