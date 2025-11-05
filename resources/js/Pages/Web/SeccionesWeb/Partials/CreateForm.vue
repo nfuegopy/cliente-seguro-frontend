@@ -7,6 +7,7 @@ import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import InputNumber from "primevue/inputnumber";
 import FileUpload from "primevue/fileupload";
+import Checkbox from "primevue/checkbox"; // <-- 1. IMPORTAR CHECKBOX
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
 
@@ -17,7 +18,8 @@ const form = useForm({
     titulo: "",
     descripcion: "",
     orden: 0,
-    enlace_url: "",
+    activo: true, // <-- 2. AÑADIR CAMPO ACTIVO
+    // enlace_url: "", // <-- 3. ELIMINAR ENLACE_URL
     texto_boton: "Ver Detalles",
     imagen: null,
 });
@@ -81,17 +83,6 @@ const submit = () => {
                     <InputLabel for="texto_boton" value="Texto del Botón" />
                     <InputText id="texto_boton" v-model="form.texto_boton" />
                 </div>
-                <div class="field">
-                    <InputLabel
-                        for="enlace_url"
-                        value="URL del Enlace (Nombre de Ruta)"
-                    />
-                    <InputText
-                        id="enlace_url"
-                        v-model="form.enlace_url"
-                        placeholder="ej: seguros.vehicular"
-                    />
-                </div>
             </div>
             <div class="field">
                 <InputLabel for="imagen" value="Imagen" />
@@ -109,6 +100,15 @@ const submit = () => {
                     </template>
                 </FileUpload>
                 <InputError :message="form.errors.imagen" />
+            </div>
+
+            <div class="field flex items-center gap-2">
+                <Checkbox
+                    v-model="form.activo"
+                    inputId="activo_create"
+                    :binary="true"
+                />
+                <label for="activo_create">Publicar en la web</label>
             </div>
 
             <div class="flex justify-end gap-2 mt-5">

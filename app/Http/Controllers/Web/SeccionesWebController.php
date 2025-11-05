@@ -38,16 +38,23 @@ class SeccionesWebController extends Controller
     {
         Log::info('SeccionesWebController: Recibida petición para crear una nueva sección.', $request->all());
 
+        // --- AJUSTES AQUÍ ---
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'imagen' => 'required|image|max:5120', // 5MB max
             'orden' => 'nullable|integer',
-            'enlace_url' => 'nullable|string', // Se valida como string porque puede ser un nombre de ruta
+            'activo' => 'boolean', // <-- AÑADIDO
+            // 'enlace_url' => 'nullable|string', // <-- ELIMINADO
             'texto_boton' => 'nullable|string|max:50',
         ]);
+        // --- FIN DE AJUSTES ---
 
         try {
+            // Convertimos 'activo' a 'true' o 'false' para la API
+            $data = $request->all();
+            $data['activo'] = $request->input('activo', false) ? 'true' : 'false';
+
             ApiHelper::postWithFile('/secciones-web', $request, 'imagen');
             Log::info('SeccionesWebController: La sección fue enviada a la API para su creación.');
         } catch (\Exception $e) {
@@ -68,16 +75,23 @@ class SeccionesWebController extends Controller
     {
         Log::info("SeccionesWebController: Se ha recibido una petición de actualización para el ID: {$id}", $request->all());
 
+        // --- AJUSTES AQUÍ ---
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'imagen' => 'nullable|image|max:5120',
             'orden' => 'nullable|integer',
-            'enlace_url' => 'nullable|string',
+            'activo' => 'boolean', // <-- AÑADIDO
+            // 'enlace_url' => 'nullable|string', // <-- ELIMINADO
             'texto_boton' => 'nullable|string|max:50',
         ]);
+        // --- FIN DE AJUSTES ---
 
         try {
+            // Convertimos 'activo' a 'true' o 'false' para la API
+            $data = $request->all();
+            $data['activo'] = $request->input('activo', false) ? 'true' : 'false';
+
             ApiHelper::postWithFile("/secciones-web/{$id}", $request, 'imagen');
             Log::info("SeccionesWebController: La sección ID {$id} fue enviada a la API para su actualización.");
         } catch (\Exception $e) {

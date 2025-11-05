@@ -17,10 +17,24 @@ const props = defineProps({
     secciones: Array,
 });
 
-// Función para determinar si una URL es externa (empieza con http)
-const isExternal = (url) => {
-    return url && url.startsWith("http");
+// --- 1. AÑADIR FUNCIÓN PARA CREAR SLUG ---
+// Esta función convierte "Seguro de Vehículo" en "seguro-de-vehiculo"
+const slugify = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .replace(/\s+/g, "-") // Reemplaza espacios con -
+        .replace(/[^\w-]+/g, "") // Quita caracteres no alfanuméricos
+        .replace(/--+/g, "-") // Reemplaza múltiples - con uno solo
+        .replace(/^-+/, "") // Quita - del inicio
+        .replace(/-+$/, ""); // Quita - del final
 };
+
+// Función para determinar si una URL es externa (empieza con http)
+// (Esta función ya no la usamos, pero la dejamos por si la necesitas)
+// const isExternal = (url) => {
+//     return url && url.startsWith("http");
+// };
 
 onMounted(() => {
     gsap.from(".hero-content-text", {
@@ -115,23 +129,10 @@ onMounted(() => {
                             {{ seccion.descripcion }}
                         </p>
 
-                        <a
-                            v-if="isExternal(seccion.enlace_url)"
-                            :href="seccion.enlace_url"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <Button
-                                :label="seccion.texto_boton"
-                                size="large"
-                                class="!bg-teal-500 hover:!bg-teal-600 !border-teal-500 !font-semibold"
-                            />
-                        </a>
                         <Link
-                            v-else-if="seccion.enlace_url"
                             :href="
                                 route('public.page.show', {
-                                    slug: seccion.enlace_url,
+                                    slug: slugify(seccion.titulo),
                                 })
                             "
                         >

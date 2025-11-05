@@ -8,6 +8,7 @@ import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import InputNumber from "primevue/inputnumber";
 import FileUpload from "primevue/fileupload";
+import Checkbox from "primevue/checkbox"; // <-- 1. IMPORTAR CHECKBOX
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
 
@@ -22,7 +23,8 @@ const form = useForm({
     titulo: "",
     descripcion: "",
     orden: 0,
-    enlace_url: "",
+    activo: true, // <-- 2. AÑADIR CAMPO ACTIVO
+    // enlace_url: "", // <-- 3. ELIMINAR ENLACE_URL
     texto_boton: "",
     imagen: null,
 });
@@ -34,7 +36,8 @@ watch(
             form.titulo = newVal.titulo;
             form.descripcion = newVal.descripcion;
             form.orden = newVal.orden;
-            form.enlace_url = newVal.enlace_url;
+            form.activo = newVal.activo; // <-- 4. AÑADIR CAMPO ACTIVO
+            // form.enlace_url = newVal.enlace_url; // <-- 5. ELIMINAR ENLACE_URL
             form.texto_boton = newVal.texto_boton;
             form.imagen = null;
         }
@@ -110,17 +113,6 @@ const submit = () => {
                         v-model="form.texto_boton"
                     />
                 </div>
-                <div class="field">
-                    <InputLabel
-                        for="enlace_url_edit"
-                        value="URL del Enlace (Nombre de Ruta)"
-                    />
-                    <InputText
-                        id="enlace_url_edit"
-                        v-model="form.enlace_url"
-                        placeholder="ej: seguros.vehicular"
-                    />
-                </div>
             </div>
             <div class="field">
                 <InputLabel
@@ -148,6 +140,15 @@ const submit = () => {
                     </template>
                 </FileUpload>
                 <InputError :message="form.errors.imagen" />
+            </div>
+
+            <div class="field flex items-center gap-2">
+                <Checkbox
+                    v-model="form.activo"
+                    inputId="activo_edit"
+                    :binary="true"
+                />
+                <label for="activo_edit">Publicar en la web</label>
             </div>
 
             <div class="flex justify-end gap-2 mt-5">
