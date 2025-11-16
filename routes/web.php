@@ -19,6 +19,7 @@ use App\Http\Controllers\Negocio\ProductoSeguroController;
 use App\Http\Controllers\Negocio\BasesCondicionesController;
 use App\Http\Controllers\Negocio\NivelCoberturaController;
 use App\Http\Controllers\Formularios\CamposFormularioController;
+use App\Http\Controllers\Formularios\ProductoFormularioCamposController;
 use App\Http\Controllers\PermisosController;
 use App\Http\Controllers\Web\SeccionesWebController;
 use App\Http\Controllers\PublicPageController;
@@ -102,6 +103,10 @@ Route::prefix('clienteseguro')->group(function () {
                 Route::resource('campos-formulario', CamposFormularioController::class)
                     ->only(['index', 'store', 'update', 'destroy'])
                     ->names('campos-formulario');
+
+                    Route::resource('producto-formulario-campos', ProductoFormularioCamposController::class)
+                ->only(['index', 'store', 'update', 'destroy'])
+                ->names('producto-formulario-campos');
             });
 
             // Grupo para Lógica de Negocio
