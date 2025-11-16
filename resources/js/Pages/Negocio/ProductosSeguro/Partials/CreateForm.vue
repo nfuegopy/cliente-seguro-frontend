@@ -20,6 +20,7 @@ const form = useForm({
     nombre_producto: "",
     descripcion_corta: "",
     activo: true,
+    publicar_en_web: false, // <-- AÑADIR CAMPO
     aseguradora_id: null,
     tipo_de_seguro_id: null,
 });
@@ -85,13 +86,24 @@ const submit = () => {
                     rows="3"
                 />
             </div>
-            <div class="field flex items-center gap-2 mb-4">
-                <Checkbox
-                    v-model="form.activo"
-                    inputId="activo"
-                    :binary="true"
-                />
-                <label for="activo">Activo</label>
+
+            <div class="flex gap-8 mb-4">
+                <div class="field flex items-center gap-2">
+                    <Checkbox
+                        v-model="form.activo"
+                        inputId="activo"
+                        :binary="true"
+                    />
+                    <label for="activo">Activo (En sistema)</label>
+                </div>
+                <div class="field flex items-center gap-2">
+                    <Checkbox
+                        v-model="form.publicar_en_web"
+                        inputId="publicar_en_web"
+                        :binary="true"
+                    />
+                    <label for="publicar_en_web">Publicar (En Web)</label>
+                </div>
             </div>
             <div class="flex justify-end gap-2 mt-5">
                 <Button

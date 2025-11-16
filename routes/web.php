@@ -18,9 +18,12 @@ use App\Http\Controllers\Negocio\Referenciales\AseguradoraController;
 use App\Http\Controllers\Negocio\ProductoSeguroController;
 use App\Http\Controllers\Negocio\BasesCondicionesController;
 use App\Http\Controllers\Negocio\NivelCoberturaController;
+use App\Http\Controllers\Formularios\CamposFormularioController;
+use App\Http\Controllers\Formularios\ProductoFormularioCamposController;
 use App\Http\Controllers\PermisosController;
 use App\Http\Controllers\Web\SeccionesWebController;
 use App\Http\Controllers\PublicPageController;
+use App\Http\Controllers\Web\SeccionProductoPublicadoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -74,7 +77,12 @@ Route::prefix('clienteseguro')->group(function () {
             Route::resource('secciones-web', SeccionesWebController::class)
                 ->only(['index', 'store', 'update', 'destroy'])
                 ->names('secciones-web');
+
+                Route::resource('seccion-producto-publicado', SeccionProductoPublicadoController::class)
+                ->only(['index', 'store', 'update', 'destroy'])
+                ->names('seccion-producto-publicado');
         });
+
             // Grupo de Parámetros del Sistema
             Route::prefix('parametros')->name('parametros.')->group(function () {
                 Route::resource('tipodocumento', TipoDocumentoController::class)
@@ -89,6 +97,16 @@ Route::prefix('clienteseguro')->group(function () {
                 Route::resource('ciudad', CiudadController::class)
                     ->only(['index', 'store', 'update', 'destroy'])
                     ->names('ciudad');
+            });
+
+            Route::prefix('formularios')->name('formularios.')->group(function () {
+                Route::resource('campos-formulario', CamposFormularioController::class)
+                    ->only(['index', 'store', 'update', 'destroy'])
+                    ->names('campos-formulario');
+
+                    Route::resource('producto-formulario-campos', ProductoFormularioCamposController::class)
+                ->only(['index', 'store', 'update', 'destroy'])
+                ->names('producto-formulario-campos');
             });
 
             // Grupo para Lógica de Negocio

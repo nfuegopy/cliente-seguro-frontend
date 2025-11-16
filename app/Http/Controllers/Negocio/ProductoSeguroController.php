@@ -11,6 +11,9 @@ use Inertia\Response;
 
 class ProductoSeguroController extends Controller
 {
+    /**
+     * Muestra la página de gestión de Productos de Seguro.
+     */
     public function index(): Response
     {
         Log::info('Cargando la página de gestión de Productos de Seguro.');
@@ -34,19 +37,36 @@ class ProductoSeguroController extends Controller
         ]);
     }
 
+    /**
+     * Almacena un nuevo producto de seguro.
+     */
     public function store(Request $request)
     {
         Log::info('Recibida petición para crear un nuevo Producto de Seguro:', $request->all());
 
-        $request->validate([
+        // 1. Validar los datos que llegan de Inertia
+        $validatedData = $request->validate([
             'nombre_producto' => 'required|string|max:255',
             'descripcion_corta' => 'nullable|string|max:500',
-            'activo' => 'boolean',
+            'activo' => 'boolean', // Valida (true, false, 1, 0)
+            'publicar_en_web' => 'boolean', // Valida (true, false, 1, 0)
             'aseguradora_id' => 'required|integer',
             'tipo_de_seguro_id' => 'required|integer',
         ]);
 
-        ApiHelper::create('/productos-seguro', $request->all());
+        // --- INICIO DE LA CORRECCIÓN (Enviar true/false) ---
+        // 2. Usar $validatedData como base
+        $apiData = $validatedData;
+
+        // 3. Sobreescribir los campos booleanos usando el helper $request->boolean()
+        //    Esto asegura que enviemos un booleano (true/false) a la API, no un entero (1/0).
+        //    Tu API (DTO de NestJS) espera un booleano.
+        $apiData['activo'] = $request->boolean('activo', true); // Default a true si no viene
+        $apiData['publicar_en_web'] = $request->boolean('publicar_en_web', false); // Default a false si no viene
+        // --- FIN DE LA CORRECCIÓN ---
+
+        // 4. Enviar los datos corregidos a la API
+        ApiHelper::create('/productos-seguro', $apiData);
 
         return redirect()->route('admin.negocio.productosseguro.index')->with('flash', [
             'type' => 'success',
@@ -54,19 +74,35 @@ class ProductoSeguroController extends Controller
         ]);
     }
 
+    /**
+     * Actualiza un producto de seguro existente.
+     */
     public function update(Request $request, string $id)
     {
         Log::info("Recibida petición para actualizar el Producto de Seguro ID: {$id}", $request->all());
 
-        $request->validate([
+        // 1. Validar los datos que llegan de Inertia
+        $validatedData = $request->validate([
             'nombre_producto' => 'required|string|max:255',
             'descripcion_corta' => 'nullable|string|max:500',
-            'activo' => 'boolean',
+            'activo' => 'boolean', // Valida (true, false, 1, 0)
+            'publicar_en_web' => 'boolean', // Valida (true, false, 1, 0)
             'aseguradora_id' => 'required|integer',
             'tipo_de_seguro_id' => 'required|integer',
         ]);
 
-        ApiHelper::update('/productos-seguro', $id, $request->all());
+        // --- INICIO DE LA CORRECCIÓN (Enviar true/false) ---
+        // 2. Usar $validatedData como base
+        $apiData = $validatedData;
+
+        // 3. Sobreescribir los campos booleanos con booleanos reales de PHP
+        //    Esto soluciona el error 400 "must be a boolean value"
+        $apiData['activo'] = $request->boolean('activo');
+        $apiData['publicar_en_web'] = $request->boolean('publicar_en_web');
+        // --- FIN DE LA CORRECCIÓN ---
+
+        // 4. Enviar los datos corregidos a la API
+        ApiHelper::update('/productos-seguro', $id, $apiData);
 
         return redirect()->route('admin.negocio.productosseguro.index')->with('flash', [
             'type' => 'success',
@@ -74,6 +110,9 @@ class ProductoSeguroController extends Controller
         ]);
     }
 
+    /**
+     * Elimina un producto de seguro.
+     */
     public function destroy(string $id)
     {
         Log::info("Recibida petición para eliminar el Producto de Seguro ID: {$id}");

@@ -4,20 +4,19 @@ import { Head, router } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
 import { ref } from "vue";
 
+// Componentes de PrimeVue
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
-import Tag from "primevue/tag";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 
+// Formularios (los crearemos a continuación)
 import CreateForm from "./Partials/CreateForm.vue";
 import EditForm from "./Partials/EditForm.vue";
 
 const props = defineProps({
-    productosSeguro: Array,
-    aseguradoras: Array,
-    tiposSeguro: Array,
+    camposFormulario: Array,
 });
 
 const confirm = useConfirm();
@@ -25,27 +24,27 @@ const toast = useToast();
 
 const showCreateDialog = ref(false);
 const showEditDialog = ref(false);
-const editingProducto = ref(null);
+const editingCampo = ref(null);
 
-const openEditDialog = (producto) => {
-    editingProducto.value = producto;
+const openEditDialog = (campo) => {
+    editingCampo.value = campo;
     showEditDialog.value = true;
 };
 
-const handleDelete = (producto) => {
+const handleDelete = (campo) => {
     confirm.require({
-        message: `¿Está seguro de eliminar el producto "${producto.nombre_producto}"?`,
+        message: `¿Está seguro de eliminar el campo "${campo.etiqueta}"?`,
         header: "Confirmar Eliminación",
         acceptClass: "p-button-danger",
         accept: () => {
             router.delete(
-                route("admin.negocio.productosseguro.destroy", producto.id),
+                route("admin.formularios.campos-formulario.destroy", campo.id),
                 {
                     onSuccess: () =>
                         toast.add({
                             severity: "success",
                             summary: "Éxito",
-                            detail: "Producto eliminado.",
+                            detail: "Campo eliminado.",
                             life: 3000,
                         }),
                 }
@@ -61,12 +60,12 @@ const handleSuccess = (message) => {
         detail: message,
         life: 3000,
     });
-    router.reload({ only: ["productosSeguro"] });
+    router.reload({ only: ["camposFormulario"] });
 };
 </script>
 
 <template>
-    <Head title="Productos de Seguro" />
+    <Head title="Campos de Formulario" />
     <AuthenticatedLayout>
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -75,55 +74,36 @@ const handleSuccess = (message) => {
                 >
                     <div class="flex justify-between items-center mb-4">
                         <h1 class="text-2xl font-bold text-dark-primary">
-                            Gestión de Productos de Seguro
+                            Catálogo de Campos de Formulario
                         </h1>
                         <Button
-                            label="Nuevo Producto"
+                            label="Nuevo Campo"
                             icon="pi pi-plus"
                             @click="showCreateDialog = true"
                         />
                     </div>
 
-                    <DataTable :value="productosSeguro" paginator :rows="10">
+                    <DataTable :value="camposFormulario" paginator :rows="10">
                         <Column
-                            field="nombre_producto"
-                            header="Producto"
+                            field="etiqueta"
+                            header="Etiqueta (Visible)"
                             sortable
-                        />
+                        ></Column>
                         <Column
-                            field="aseguradora.nombre"
-                            header="Aseguradora"
+                            field="key_tecnica"
+                            header="Key Técnica"
                             sortable
-                        />
+                        ></Column>
                         <Column
-                            field="tipo_de_seguro.nombre"
-                            header="Tipo de Seguro"
+                            field="entidad_destino"
+                            header="Entidad Destino"
                             sortable
-                        />
-                        <Column header="Activo" style="text-align: center">
-                            <template #body="{ data }">
-                                <Tag
-                                    v-if="data.activo"
-                                    value="Sí"
-                                    severity="success"
-                                />
-                                <Tag v-else value="No" severity="danger" />
-                            </template>
-                        </Column>
-
+                        ></Column>
                         <Column
-                            header="Publicado Web"
-                            style="text-align: center"
-                        >
-                            <template #body="{ data }">
-                                <Tag
-                                    v-if="data.publicar_en_web"
-                                    value="Sí"
-                                    severity="info"
-                                />
-                                <Tag v-else value="No" severity="warning" />
-                            </template>
-                        </Column>
+                            field="tipo_html"
+                            header="Tipo HTML"
+                            sortable
+                        ></Column>
                         <Column
                             header="Acciones"
                             style="width: 10%; text-align: center"
@@ -154,17 +134,13 @@ const handleSuccess = (message) => {
 
         <CreateForm
             :visible="showCreateDialog"
-            :aseguradoras="aseguradoras"
-            :tipos-seguro="tiposSeguro"
             @update:visible="showCreateDialog = $event"
             @success="handleSuccess"
         />
 
         <EditForm
             :visible="showEditDialog"
-            :producto="editingProducto"
-            :aseguradoras="aseguradoras"
-            :tipos-seguro="tiposSeguro"
+            :campo="editingCampo"
             @update:visible="showEditDialog = $event"
             @success="handleSuccess"
         />

@@ -22,6 +22,7 @@ const form = useForm({
     nombre_producto: "",
     descripcion_corta: "",
     activo: true,
+    publicar_en_web: false, // <-- AÑADIR CAMPO
     aseguradora_id: null,
     tipo_de_seguro_id: null,
 });
@@ -33,6 +34,7 @@ watch(
             form.nombre_producto = newVal.nombre_producto;
             form.descripcion_corta = newVal.descripcion_corta;
             form.activo = newVal.activo;
+            form.publicar_en_web = newVal.publicar_en_web; // <-- AÑADIR CAMPO
             form.aseguradora_id = newVal.aseguradora.id;
             form.tipo_de_seguro_id = newVal.tipo_de_seguro.id;
         }
@@ -112,13 +114,24 @@ const submit = () => {
                     rows="3"
                 />
             </div>
-            <div class="field flex items-center gap-2 mb-4">
-                <Checkbox
-                    v-model="form.activo"
-                    inputId="activo_edit"
-                    :binary="true"
-                />
-                <label for="activo_edit">Activo</label>
+
+            <div class="flex gap-8 mb-4">
+                <div class="field flex items-center gap-2">
+                    <Checkbox
+                        v-model="form.activo"
+                        inputId="activo_edit"
+                        :binary="true"
+                    />
+                    <label for="activo_edit">Activo (En sistema)</label>
+                </div>
+                <div class="field flex items-center gap-2">
+                    <Checkbox
+                        v-model="form.publicar_en_web"
+                        inputId="publicar_en_web_edit"
+                        :binary="true"
+                    />
+                    <label for="publicar_en_web_edit">Publicar (En Web)</label>
+                </div>
             </div>
             <div class="flex justify-end gap-2 mt-5">
                 <Button
