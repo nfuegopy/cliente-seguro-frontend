@@ -228,8 +228,12 @@ class ApiHelper
         }
 
         // Para actualizar, Laravel envía un campo _method='PATCH' que debemos manejar.
-        if ($request->input('_method') === 'PATCH') {
-            return $client->post("{$endpoint}");
+        // if ($request->input('_method') === 'PATCH') {
+        //     return $client->post("{$endpoint}");
+        // }
+
+if ($request->input('_method') === 'PATCH') {
+            return $client->patch("{$endpoint}"); // Cambiado de post() a patch()
         }
 
         return $client->post($endpoint);

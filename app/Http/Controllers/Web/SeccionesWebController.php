@@ -42,7 +42,7 @@ class SeccionesWebController extends Controller
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'imagen' => 'required|image|max:5120', // 5MB max
+'imagen' => 'required|file|mimes:jpeg,png,jpg,webp,svg|max:5120', // 5MB max
             'orden' => 'nullable|integer',
             'activo' => 'boolean', // <-- AÑADIDO
             // 'enlace_url' => 'nullable|string', // <-- ELIMINADO
@@ -79,7 +79,7 @@ class SeccionesWebController extends Controller
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'imagen' => 'nullable|image|max:5120',
+            'imagen' => 'nullable|file|mimes:jpeg,png,jpg,webp,svg|max:5120',
             'orden' => 'nullable|integer',
             'activo' => 'boolean', // <-- AÑADIDO
             // 'enlace_url' => 'nullable|string', // <-- ELIMINADO
