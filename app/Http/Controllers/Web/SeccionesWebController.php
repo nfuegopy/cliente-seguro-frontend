@@ -7,7 +7,7 @@ use App\Http\Helpers\ApiHelper;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Facades\Log; // <-- Importante: Facade para logging
+use Illuminate\Support\Facades\Log;
 
 class SeccionesWebController extends Controller
 {
@@ -38,25 +38,26 @@ class SeccionesWebController extends Controller
     {
         Log::info('SeccionesWebController: Recibida petición para crear una nueva sección.', $request->all());
 
-        // --- AJUSTES AQUÍ ---
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'imagen' => 'required|image|max:5120', // 5MB max
+            // Validamos que sea imagen O svg. 5MB max.
+            'imagen' => 'required|file|mimes:jpeg,png,jpg,webp,svg|max:5120',
             'orden' => 'nullable|integer',
-            'activo' => 'boolean', // <-- AÑADIDO
-            // 'enlace_url' => 'nullable|string', // <-- ELIMINADO
+            'activo' => 'boolean',
             'texto_boton' => 'nullable|string|max:50',
         ]);
-        // --- FIN DE AJUSTES ---
 
         try {
-            // Convertimos 'activo' a 'true' o 'false' para la API
-            $data = $request->all();
-            $data['activo'] = $request->input('activo', false) ? 'true' : 'false';
+            // Preparamos los datos. Convertimos el booleano a string 'true'/'false'
+            // porque al enviar archivos (multipart), los booleanos a veces viajan como '1'/'0'
+            $request->merge([
+                'activo' => $request->boolean('activo') ? 'true' : 'false'
+            ]);
 
             ApiHelper::postWithFile('/secciones-web', $request, 'imagen');
             Log::info('SeccionesWebController: La sección fue enviada a la API para su creación.');
+
         } catch (\Exception $e) {
             Log::error('SeccionesWebController: Falló la llamada a la API para crear la sección.', ['error' => $e->getMessage()]);
             return back()->withErrors(['api_error' => 'No se pudo crear la sección: ' . $e->getMessage()]);
@@ -75,30 +76,30 @@ class SeccionesWebController extends Controller
     {
         Log::info("SeccionesWebController: Se ha recibido una petición de actualización para el ID: {$id}", $request->all());
 
-        // --- AJUSTES AQUÍ ---
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'imagen' => 'nullable|image|max:5120',
+            // En update, la imagen es opcional (nullable)
+            'imagen' => 'nullable|file|mimes:jpeg,png,jpg,webp,svg|max:5120',
             'orden' => 'nullable|integer',
-            'activo' => 'boolean', // <-- AÑADIDO
-            // 'enlace_url' => 'nullable|string', // <-- ELIMINADO
+            'activo' => 'boolean',
             'texto_boton' => 'nullable|string|max:50',
         ]);
-        // --- FIN DE AJUSTES ---
 
         try {
-            // Convertimos 'activo' a 'true' o 'false' para la API
-            $data = $request->all();
-            $data['activo'] = $request->input('activo', false) ? 'true' : 'false';
+            // Conversión explícita de booleano a string para asegurar compatibilidad con el DTO
+            // Usamos merge para sobrescribir el valor en el request antes de enviarlo
+            $request->merge([
+                'activo' => $request->boolean('activo') ? 'true' : 'false'
+            ]);
 
             ApiHelper::postWithFile("/secciones-web/{$id}", $request, 'imagen');
             Log::info("SeccionesWebController: La sección ID {$id} fue enviada a la API para su actualización.");
+
         } catch (\Exception $e) {
             Log::error("SeccionesWebController: Falló la llamada a la API para actualizar la sección ID {$id}.", ['error' => $e->getMessage()]);
             return back()->withErrors(['api_error' => 'No se pudo actualizar la sección: ' . $e->getMessage()]);
         }
-
 
         return redirect()->route('admin.web.secciones-web.index')->with('flash', [
             'type' => 'success',

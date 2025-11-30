@@ -90,7 +90,7 @@ const submit = () => {
                     name="imagen"
                     @select="onFileSelect"
                     :multiple="false"
-                    accept="image/*"
+                    accept="image/*,.svg"
                     :maxFileSize="5000000"
                     chooseLabel="Seleccionar Imagen"
                     :class="{ 'p-invalid': !!form.errors.imagen }"
