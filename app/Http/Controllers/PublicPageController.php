@@ -81,6 +81,10 @@ class PublicPageController extends Controller
 
             Log::info("PublicPageController: Sección encontrada para '{$slug}'. Renderizando vista.", ['seccion' => $seccionActual['titulo']]);
 
+            Log::debug("PublicPageController: Datos enviados al Frontend:", [
+                'productos' => $productosConFormulario
+            ]);
+
             return Inertia::render('Public/PaginaDinamica', [
                 'seccion' => $seccionActual,
                 'productosConFormulario' => $productosConFormulario // <-- 7. Pasamos los datos a la vista
