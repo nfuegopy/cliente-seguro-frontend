@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, useForm } from "@inertiajs/vue3";
+import { Head, Link, useForm, router } from "@inertiajs/vue3";
 import { onMounted, ref } from "vue";
 import { route } from "ziggy-js"; // Importante para que funcione route('welcome')
 import gsap from "gsap";
@@ -71,14 +71,81 @@ onMounted(() => {
 });
 
 const submitForm = (productoId) => {
-    alert(
-        `Simulando envío para Producto ID: ${productoId}\nDatos: ${JSON.stringify(
-            form.data(),
-            null,
-            2
-        )}`
+    // 1. Buscamos la configuración del producto que el usuario está intentando enviar
+    const productoActual = props.productosConFormulario.find(
+        (p) => p.id === productoId
     );
-    // Aquí conectaremos luego con el backend
+
+    if (!productoActual) return;
+
+    // 2. Preparamos el esqueleto del JSON que NestJS espera.
+    // Fíjate que inicializamos ambos detalles vacíos.
+    const payload = {
+        producto_seguro_id: productoId,
+        persona: {},
+        usuario: {},
+        detalles_auto: null, // Inicialmente null
+        detalles_medico: null, // Inicialmente null
+        otros_datos: {},
+    };
+
+    // Objetos temporales para ir llenando datos si existen
+    const tempAuto = {};
+    const tempMedico = {};
+
+    // 3. Magia: Clasificamos cada campo según lo que diga la Base de Datos
+    productoActual.formulario.forEach((link) => {
+        const campo = link.campoFormulario;
+        const valor = form[campo.key_tecnica];
+
+        // Solo guardamos si el usuario escribió algo
+        if (valor !== undefined && valor !== null && valor !== "") {
+            switch (campo.entidad_destino) {
+                case "persona":
+                    payload.persona[campo.key_tecnica] = valor;
+                    break;
+                case "usuario":
+                    payload.usuario[campo.key_tecnica] = valor;
+                    break;
+                case "detalles_poliza_auto":
+                    // Si encontramos un dato de auto, lo guardamos en el temporal
+                    tempAuto[campo.key_tecnica] = valor;
+                    break;
+                case "detalles_poliza_medica":
+                    // Si encontramos un dato médico, lo guardamos en el temporal
+                    tempMedico[campo.key_tecnica] = valor;
+                    break;
+                default:
+                    payload.otros_datos[campo.key_tecnica] = valor;
+            }
+        }
+    });
+
+    // 4. Decisión final: Si llenamos datos de auto, activamos ese objeto en el payload
+    if (Object.keys(tempAuto).length > 0) {
+        payload.detalles_auto = tempAuto;
+    }
+    // Si llenamos datos médicos, activamos ese objeto
+    if (Object.keys(tempMedico).length > 0) {
+        payload.detalles_medico = tempMedico;
+    }
+
+    // 5. Enviamos a Laravel (quien luego se lo pasará a NestJS)
+    console.log("Enviando Payload Inteligente:", payload);
+
+    // Usamos router.post en lugar de form.post para tener control total del objeto JSON
+    router.post(route("public.solicitud.store"), payload, {
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset();
+            // Aquí podrías usar tu Toast de PrimeVue
+            alert("¡Solicitud recibida! Estamos procesando tu presupuesto.");
+        },
+        onError: (errors) => {
+            console.error("Errores:", errors);
+            alert("Por favor revisa los campos requeridos.");
+        },
+    });
 };
 </script>
 

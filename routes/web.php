@@ -57,7 +57,7 @@ Route::prefix('clienteseguro')->group(function () {
         ->name('api.public.proxy');
 
     Route::get('/seguro/{slug}', [PublicPageController::class, 'show'])->name('public.page.show');
-
+Route::post('/solicitud', [PublicPageController::class, 'store'])->name('public.solicitud.store');
     Route::get('/acceso-clientes', [ClientLoginController::class, 'create'])->name('cliente.login');
     Route::post('/acceso-clientes', [ClientLoginController::class, 'store']);
 

@@ -95,4 +95,34 @@ class PublicPageController extends Controller
             abort(500, 'No se pudo contactar al servicio de contenido.');
         }
     }
+
+public function store(Request $request)
+{
+    // 1. Recibimos el JSON "inteligente" que armó Vue
+    $datos = $request->all();
+
+    Log::info('Recibiendo solicitud de presupuesto:', $datos);
+
+    try {
+        // 2. Aquí llamamos a tu API Helper para enviar los datos a NestJS.
+        // Nota: Asumo que tienes un endpoint en NestJS para procesar esto,
+        // o usarás el de creación de pólizas '/polizas'.
+
+        // Si el usuario no está logueado, esta llamada fallará si '/polizas' requiere Auth.
+        // Dependiendo de tu lógica de negocio, podrías usar una API Key de sistema
+        // para crear una "Solicitud" o "Presupuesto" inicial.
+
+        $response = ApiHelper::create('/polizas', $datos); // O el endpoint que corresponda
+
+        return redirect()->back()->with('flash', [
+            'type' => 'success',
+            'message' => 'Tu solicitud de presupuesto ha sido creada exitosamente. Número: ' . ($response['numero_poliza'] ?? 'Pendiente')
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error al enviar solicitud a NestJS:', ['error' => $e->getMessage()]);
+        return redirect()->back()->withErrors(['api_error' => 'No se pudo procesar la solicitud.']);
+    }
+}
+
 }
