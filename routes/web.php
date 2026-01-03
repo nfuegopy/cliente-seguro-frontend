@@ -28,6 +28,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Helpers\ApiHelper;
+//Importacion de este controller para poder utilizar las URL de manera
+use App\Http\Controllers\PublicApiController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -46,10 +48,16 @@ Route::prefix('clienteseguro')->group(function () {
         'canRegister' => Route::has('register'),
         'secciones' => $seccionesActivas,
     ]);
+
+
 })->name('welcome');
 
-    Route::get('/seguro/{slug}', [PublicPageController::class, 'show'])->name('public.page.show');
+  Route::get('/api/public/{endpoint}', [PublicApiController::class, 'proxy'])
+        ->where('endpoint', '.*') // Permite barras inclinadas en el parámetro
+        ->name('api.public.proxy');
 
+    Route::get('/seguro/{slug}', [PublicPageController::class, 'show'])->name('public.page.show');
+Route::post('/solicitud', [PublicPageController::class, 'store'])->name('public.solicitud.store');
     Route::get('/acceso-clientes', [ClientLoginController::class, 'create'])->name('cliente.login');
     Route::post('/acceso-clientes', [ClientLoginController::class, 'store']);
 

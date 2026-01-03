@@ -1,9 +1,9 @@
 <script setup>
-import { Head, Link, useForm } from "@inertiajs/vue3";
-import { onMounted } from "vue";
+import { Head, Link, useForm, router } from "@inertiajs/vue3";
+import { onMounted, ref } from "vue";
 import { route } from "ziggy-js"; // Importante para que funcione route('welcome')
 import gsap from "gsap";
-
+import axios from "axios"; //Import de axio para utilizar dentro de las rutas publicas
 // Componentes UI de PrimeVue
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
@@ -25,6 +25,8 @@ const props = defineProps({
 // Inicializamos el formulario de Inertia
 const form = useForm({});
 
+const selectOptions = ref({});
+
 // Animaciones de entrada
 onMounted(() => {
     gsap.from(".fade-in-up", {
@@ -34,17 +36,116 @@ onMounted(() => {
         stagger: 0.1,
         ease: "power2.out",
     });
+
+    props.productosConFormulario.forEach((producto) => {
+        producto.formulario.forEach(async (campoLink) => {
+            const campo = campoLink.campoFormulario;
+
+            // Si es un SELECT y tiene un endpoint definido en la BD
+            if (campo.tipo_html === "select" && campo.api_endpoint_options) {
+                try {
+                    // Quitamos la barra inicial si la tiene para que coincida con la ruta de Laravel
+                    const cleanEndpoint = campo.api_endpoint_options.startsWith(
+                        "/"
+                    )
+                        ? campo.api_endpoint_options.substring(1)
+                        : campo.api_endpoint_options;
+
+                    // Llamamos a NUESTRO proxy de Laravel
+                    // URL Final: /clienteseguro/api/public/vehiculo-marcas
+                    const response = await axios.get(
+                        route("api.public.proxy", { endpoint: cleanEndpoint })
+                    );
+
+                    // Guardamos las opciones usando la key_tecnica (ej: 'marca_id') como índice
+                    selectOptions.value[campo.key_tecnica] = response.data;
+                } catch (error) {
+                    console.error(
+                        `Error cargando opciones para ${campo.etiqueta}:`,
+                        error
+                    );
+                }
+            }
+        });
+    });
 });
 
 const submitForm = (productoId) => {
-    alert(
-        `Simulando envío para Producto ID: ${productoId}\nDatos: ${JSON.stringify(
-            form.data(),
-            null,
-            2
-        )}`
+    // 1. Buscamos la configuración del producto que el usuario está intentando enviar
+    const productoActual = props.productosConFormulario.find(
+        (p) => p.id === productoId
     );
-    // Aquí conectaremos luego con el backend
+
+    if (!productoActual) return;
+
+    // 2. Preparamos el esqueleto del JSON que NestJS espera.
+    // Fíjate que inicializamos ambos detalles vacíos.
+    const payload = {
+        producto_seguro_id: productoId,
+        persona: {},
+        usuario: {},
+        detalles_auto: null, // Inicialmente null
+        detalles_medico: null, // Inicialmente null
+        otros_datos: {},
+    };
+
+    // Objetos temporales para ir llenando datos si existen
+    const tempAuto = {};
+    const tempMedico = {};
+
+    // 3. Magia: Clasificamos cada campo según lo que diga la Base de Datos
+    productoActual.formulario.forEach((link) => {
+        const campo = link.campoFormulario;
+        const valor = form[campo.key_tecnica];
+
+        // Solo guardamos si el usuario escribió algo
+        if (valor !== undefined && valor !== null && valor !== "") {
+            switch (campo.entidad_destino) {
+                case "persona":
+                    payload.persona[campo.key_tecnica] = valor;
+                    break;
+                case "usuario":
+                    payload.usuario[campo.key_tecnica] = valor;
+                    break;
+                case "detalles_poliza_auto":
+                    // Si encontramos un dato de auto, lo guardamos en el temporal
+                    tempAuto[campo.key_tecnica] = valor;
+                    break;
+                case "detalles_poliza_medica":
+                    // Si encontramos un dato médico, lo guardamos en el temporal
+                    tempMedico[campo.key_tecnica] = valor;
+                    break;
+                default:
+                    payload.otros_datos[campo.key_tecnica] = valor;
+            }
+        }
+    });
+
+    // 4. Decisión final: Si llenamos datos de auto, activamos ese objeto en el payload
+    if (Object.keys(tempAuto).length > 0) {
+        payload.detalles_auto = tempAuto;
+    }
+    // Si llenamos datos médicos, activamos ese objeto
+    if (Object.keys(tempMedico).length > 0) {
+        payload.detalles_medico = tempMedico;
+    }
+
+    // 5. Enviamos a Laravel (quien luego se lo pasará a NestJS)
+    console.log("Enviando Payload Inteligente:", payload);
+
+    // Usamos router.post en lugar de form.post para tener control total del objeto JSON
+    router.post(route("public.solicitud.store"), payload, {
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset();
+            // Aquí podrías usar tu Toast de PrimeVue
+            alert("¡Solicitud recibida! Estamos procesando tu presupuesto.");
+        },
+        onError: (errors) => {
+            console.error("Errores:", errors);
+            alert("Por favor revisa los campos requeridos.");
+        },
+    });
 };
 </script>
 
@@ -317,10 +418,23 @@ const submitForm = (productoId) => {
                                                         .key_tecnica
                                                 ]
                                             "
-                                            :options="[]"
+                                            :options="
+                                                selectOptions[
+                                                    campoLink.campoFormulario
+                                                        .key_tecnica
+                                                ] || []
+                                            "
+                                            optionLabel="nombre"
+                                            optionValue="id"
                                             :placeholder="`Seleccionar ${campoLink.campoFormulario.etiqueta}`"
-                                            class="w-full !bg-slate-50 !border-slate-200 !rounded-xl"
-                                            disabled
+                                            :disabled="
+                                                !selectOptions[
+                                                    campoLink.campoFormulario
+                                                        .key_tecnica
+                                                ]
+                                            "
+                                            filter
+                                            class="w-full custom-dropdown"
                                         />
                                     </template>
                                 </div>
@@ -370,15 +484,63 @@ const submitForm = (productoId) => {
 </template>
 
 <style scoped>
-/* Ajustes finos para inputs de PrimeVue */
+/* Estilos para Inputs normales */
 :deep(.p-inputtext) {
-    transition: all 0.2s;
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    color: #1e293b;
 }
-:deep(.p-inputtext:enabled:hover) {
-    border-color: #cbd5e1; /* slate-300 */
+
+/* === SOLUCIÓN DEFINITIVA PARA EL DROPDOWN === */
+
+/* 1. El contenedor del Dropdown (cuando está cerrado) */
+:deep(.custom-dropdown) {
+    background-color: #000000 !important; /* Fondo blanco puro */
+    border: 1px solid #cbd5e1 !important; /* Borde gris visible */
+    border-radius: 0.75rem;
 }
-:deep(.p-inputtext:enabled:focus) {
-    border-color: #0d9488; /* teal-600 */
-    box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.1);
+
+/* 2. El texto seleccionado (Lo que te fallaba) */
+:deep(.custom-dropdown .p-dropdown-label) {
+    color: #090707 !important; /* Negro absoluto para máximo contraste */
+    font-weight: 600 !important;
+}
+
+/* 3. El texto del Placeholder (Cuando no has seleccionado nada) */
+:deep(.custom-dropdown .p-dropdown-label.p-placeholder) {
+    color: #64748b !important; /* Gris medio */
+    font-weight: normal !important;
+}
+
+/* 4. El icono de la flecha */
+:deep(.custom-dropdown .p-dropdown-trigger) {
+    color: #64748b !important;
+    background: transparent !important;
+}
+
+/* 5. El Panel Desplegable (La lista de opciones) */
+:deep(.p-dropdown-panel) {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 6. Los ítems de la lista */
+:deep(.p-dropdown-item) {
+    color: #334155 !important; /* Gris oscuro */
+    background-color: transparent !important;
+}
+
+/* 7. Ítem al pasar el mouse (Hover) */
+:deep(.p-dropdown-item:hover) {
+    background-color: #f1f5f9 !important; /* Gris muy claro */
+    color: #0f172a !important;
+}
+
+/* 8. Ítem seleccionado en la lista (Highlight) */
+:deep(.p-dropdown-item.p-highlight) {
+    background-color: #f0fdfa !important; /* Fondo verde azulado claro */
+    color: #0d9488 !important; /* Texto verde azulado */
+    font-weight: bold;
 }
 </style>
